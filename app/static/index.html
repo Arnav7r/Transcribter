@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InstaTranscribe Hindi • Reels Audio to Written Hindi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fa-brands fa-instagram"></i>
+          <span class="hindi-badge">हि</span>
+        </div>
+        <div class="logo-text">
+          <h1>InstaTranscribe <span>Hindi</span></h1>
+          <p>Reels Audio Extractor, Transcriber & हिन्दी अनुवादक</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="settingsBtn" class="btn-ghost" title="Settings">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Settings</span>
+        </button>
+        <a href="#about" class="btn-ghost" id="helpBtn">
+          <i class="fa-regular fa-circle-question"></i>
+          <span>How it works</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <!-- Hero / Intro -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <i class="fa-solid fa-sparkles"></i> AI-Powered Reel Transcription
+      </div>
+      <h2>Turn any Instagram Video into <span class="gradient-text">Written Hindi</span></h2>
+      <p class="hero-subtitle">Upload reels or paste links. Extract spoken audio, generate accurate subtitles, and get flawless Devanagari Hindi text in seconds.</p>
+    </section>
+
+    <!-- Settings Drawer (Hidden by default) -->
+    <div id="settingsDrawer" class="settings-drawer hidden">
+      <div class="settings-content">
+        <div class="settings-header">
+          <h3><i class="fa-solid fa-gear"></i> Processing Settings</h3>
+          <button id="closeSettingsBtn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="settings-grid">
+          <div class="form-group">
+            <label for="sourceLangSelect">Audio Language:</label>
+            <select id="sourceLangSelect" class="form-control">
+              <option value="auto" selected>🌐 Auto-Detect</option>
+              <option value="te">🇮🇳 Telugu (తెలుగు)</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+              <option value="ta">🇮🇳 Tamil (தமிழ்)</option>
+              <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+              <option value="ml">🇮🇳 Malayalam (മലയാളം)</option>
+              <option value="mr">🇮🇳 Marathi (मराठी)</option>
+              <option value="bn">🇮🇳 Bengali (বাংলা)</option>
+              <option value="pa">🇮🇳 Punjabi (ਪੰਜਾਬੀ)</option>
+              <option value="gu">🇮🇳 Gujarati (ગુજરાતી)</option>
+            </select>
+            <span class="form-help">Select Telugu (తెలుగు) for Telugu reels to guarantee exact accuracy.</span>
+          </div>
+          <div class="form-group">
+            <label for="modelSelect">Whisper Speech Model:</label>
+            <select id="modelSelect" class="form-control">
+              <option value="small" selected>Small (Recommended - High accuracy for Indian languages & reels)</option>
+              <option value="base">Base (Fast, lightweight)</option>
+              <option value="medium">Medium (Maximum studio precision)</option>
+              <option value="tiny">Tiny (Fastest, basic)</option>
+            </select>
+            <span class="form-help">Runs 100% locally on your machine via faster-whisper.</span>
+          </div>
+          <div class="form-group">
+            <label for="geminiKey">Gemini API Key (Optional):</label>
+            <input type="password" id="geminiKey" class="form-control" placeholder="AIzaSy... (Leave blank for free built-in translator)" />
+            <span class="form-help">Optional: Enhances Hindi translation for colloquial slang and idioms.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload & Input Card -->
+    <section class="input-card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="uploadTab">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload Video File
+        </button>
+        <button class="tab-btn" data-tab="urlTab">
+          <i class="fa-solid fa-link"></i> Instagram Reel Link
+        </button>
+      </div>
+
+      <!-- Tab 1: File Upload -->
+      <div id="uploadTab" class="tab-content active">
+        <div id="dropZone" class="drop-zone">
+          <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm,video/mkv,.mp4,.mov,.webm" hidden />
+          <div class="drop-icon">
+            <i class="fa-solid fa-file-video"></i>
+          </div>
+          <h3>Drag & drop your Instagram video here</h3>
+          <p>or click to browse files from your computer</p>
+          <span class="file-hint">Supports MP4, MOV, WebM (up to 500 MB)</span>
+          
+          <div id="selectedFileInfo" class="selected-file-info hidden">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="selectedFileName">video.mp4</span>
+            <span id="selectedFileSize" class="file-size">(12.4 MB)</span>
+          </div>
+        </div>
+        <div class="action-bar">
+          <div class="quick-lang-picker">
+            <label for="quickSourceLang"><i class="fa-solid fa-language"></i> Video Audio Language:</label>
+            <select id="quickSourceLang" class="form-control-sm">
+              <option value="auto">🌐 Auto Detect</option>
+              <option value="te" selected>🇮🇳 Telugu (తెలుగు)</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+              <option value="ta">🇮🇳 Tamil (தமிழ்)</option>
+              <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+              <option value="ml">🇮🇳 Malayalam (മലയാളം)</option>
+              <option value="mr">🇮🇳 Marathi (मराठी)</option>
+              <option value="bn">🇮🇳 Bengali (বাংলা)</option>
+              <option value="pa">🇮🇳 Punjabi (ਪੰਜਾਬੀ)</option>
+              <option value="gu">🇮🇳 Gujarati (ગુજરાતી)</option>
+            </select>
+          </div>
+          <button id="startUploadBtn" class="btn-primary" disabled>
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Transcribe & Translate to Hindi
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Instagram URL -->
+      <div id="urlTab" class="tab-content">
+        <div class="url-input-wrapper">
+          <i class="fa-brands fa-instagram url-icon"></i>
+          <input type="url" id="instaUrlInput" placeholder="Paste Instagram Reel or Post link (e.g. https://www.instagram.com/reel/...)" class="url-input" />
+          <button id="startUrlBtn" class="btn-primary">
+            <i class="fa-solid fa-bolt"></i> Fetch & Transcribe
+          </button>
+        </div>
+        <div class="url-bottom-row">
+          <p class="url-help-text">
+            <i class="fa-solid fa-info-circle"></i> Works with public Instagram Reels, Clips, and Video posts.
+          </p>
+          <div class="quick-lang-picker">
+            <label for="quickUrlSourceLang"><i class="fa-solid fa-language"></i> Audio:</label>
+            <select id="quickUrlSourceLang" class="form-control-sm">
+              <option value="auto">🌐 Auto Detect</option>
+              <option value="te" selected>🇮🇳 Telugu (తెలుగు)</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="hi">🇮🇳 Hindi (हिन्दी)</option>
+              <option value="ta">🇮🇳 Tamil (தமிழ்)</option>
+              <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+              <option value="ml">🇮🇳 Malayalam (മലയാളം)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress / Status Card (Hidden initially) -->
+    <section id="progressCard" class="progress-card hidden">
+      <div class="progress-header">
+        <div class="spinner"></div>
+        <div>
+          <h3 id="progressTitle">Processing Instagram Video...</h3>
+          <p id="progressStatus">Initializing pipeline...</p>
+        </div>
+      </div>
+      <div class="progress-bar-track">
+        <div id="progressBar" class="progress-bar-fill" style="width: 5%;"></div>
+      </div>
+      <div class="pipeline-steps">
+        <div class="step" id="stepIngest">
+          <i class="fa-solid fa-download"></i>
+          <span>1. Ingestion</span>
+        </div>
+        <div class="step" id="stepExtract">
+          <i class="fa-solid fa-file-audio"></i>
+          <span>2. Audio Extract</span>
+        </div>
+        <div class="step" id="stepTranscribe">
+          <i class="fa-solid fa-comment-dots"></i>
+          <span>3. Transcribe</span>
+        </div>
+        <div class="step" id="stepTranslate">
+          <i class="fa-solid fa-language"></i>
+          <span>4. Hindi Translate</span>
+        </div>
+        <div class="step" id="stepReady">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>5. Complete</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section (Hidden initially) -->
+    <section id="resultsSection" class="results-section hidden">
+      <div class="results-layout">
+        <!-- Left Column: Video Player & Meta -->
+        <div class="video-panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-circle-play"></i> Video Preview</h3>
+            <span id="detectedLangBadge" class="badge">Language: Detect</span>
+          </div>
+          <div class="video-wrapper">
+            <video id="videoPlayer" controls playsinline>
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <div class="video-meta">
+            <div class="meta-item">
+              <span class="meta-label">Duration:</span>
+              <span id="metaDuration" class="meta-val">00:00</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Segments:</span>
+              <span id="metaSegments" class="meta-val">0</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Confidence:</span>
+              <span id="metaConfidence" class="meta-val">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Transcripts & Translations -->
+        <div class="transcript-panel">
+          <!-- Navigation & Action Header -->
+          <div class="panel-header">
+            <div class="view-tabs">
+              <button class="view-tab active" data-view="hindi">
+                <i class="fa-solid fa-om"></i> हिन्दी अनुवाद
+              </button>
+              <button class="view-tab" data-view="sidebyside">
+                <i class="fa-solid fa-columns"></i> Side-by-Side
+              </button>
+              <button class="view-tab" data-view="segments">
+                <i class="fa-solid fa-clock"></i> Timestamps
+              </button>
+              <button class="view-tab" data-view="original">
+                <i class="fa-solid fa-align-left"></i> Original Text
+              </button>
+            </div>
+            <div class="quick-tools">
+              <button id="ttsBtn" class="btn-tool" title="Listen to Hindi Audio Readout">
+                <i class="fa-solid fa-volume-high"></i> Listen
+              </button>
+              <button id="copyBtn" class="btn-tool" title="Copy Hindi Text">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+
+          <!-- Views Container -->
+          <div class="views-container">
+            <!-- 1. Pure Hindi Devanagari View -->
+            <div id="viewHindi" class="view-pane active">
+              <div class="hindi-text-card">
+                <p id="hindiFullText" class="hindi-content">हिन्दी अनुवाद यहाँ प्रदर्शित होगा...</p>
+              </div>
+            </div>
+
+            <!-- 2. Side-by-Side View -->
+            <div id="viewSideBySide" class="view-pane">
+              <div class="side-by-side-grid">
+                <div class="side-box">
+                  <div class="side-title"><i class="fa-solid fa-om"></i> लिखित हिन्दी (Hindi)</div>
+                  <div id="sideHindiText" class="side-content hindi-content"></div>
+                </div>
+                <div class="side-box">
+                  <div class="side-title"><i class="fa-solid fa-globe"></i> मूल ऑडियो (Original)</div>
+                  <div id="sideOriginalText" class="side-content"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Timestamped Segments View -->
+            <div id="viewSegments" class="view-pane">
+              <div id="segmentsList" class="segments-list">
+                <!-- Dynamic segment cards -->
+              </div>
+            </div>
+
+            <!-- 4. Original Text View -->
+            <div id="viewOriginal" class="view-pane">
+              <div class="original-text-card">
+                <p id="originalFullText" class="orig-content"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Toolbar -->
+          <div class="export-toolbar">
+            <span class="export-label"><i class="fa-solid fa-download"></i> Export Options:</span>
+            <div class="export-buttons">
+              <button class="btn-export" id="exportSrtHindi">
+                <i class="fa-solid fa-closed-captioning"></i> Hindi .SRT (Subtitles)
+              </button>
+              <button class="btn-export" id="exportTxt">
+                <i class="fa-regular fa-file-lines"></i> Hindi .TXT
+              </button>
+              <button class="btn-export" id="exportJson">
+                <i class="fa-solid fa-code"></i> JSON Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Explainer / Features Section -->
+    <section id="about" class="features-section">
+      <div class="feature-card">
+        <div class="feat-icon"><i class="fa-brands fa-instagram"></i></div>
+        <h4>Instagram Ready</h4>
+        <p>Supports both downloaded video reels and direct links. Perfect for reels, shorts, stories, and posts.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon"><i class="fa-solid fa-microchip"></i></div>
+        <h4>Local Whisper AI</h4>
+        <p>High-accuracy voice recognition running right on your system with automatic spoken language detection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon"><i class="fa-solid fa-language"></i></div>
+        <h4>Written Hindi (हिन्दी)</h4>
+        <p>Translates audio into natural written Devanagari Hindi text with timestamped subtitle export for video editing.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>InstaTranscribe Hindi • Free, Fast & Private Instagram Video Audio Transcriber</p>
+  </footer>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

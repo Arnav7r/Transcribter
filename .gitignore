@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+cloudflared.exe
+temp_audio/*
+uploads/*
+outputs/*
+!temp_audio/.gitkeep
+!uploads/.gitkeep
+!outputs/.gitkeep
+.env
