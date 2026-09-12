@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 import yt_dlp
@@ -6,6 +7,14 @@ from app.config import FFMPEG_PATH, FFMPEG_DIR, UPLOAD_DIR, AUDIO_DIR
 def extract_audio_from_video(video_path: Path, output_audio_path: Path) -> Path:
     """Extract audio from video file and convert to 16kHz mono WAV for Whisper."""
     output_audio_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure executable permissions on Linux/Unix systems
+    if os.name != "nt":
+        try:
+            Path(FFMPEG_PATH).chmod(0o755)
+        except Exception:
+            pass
+
     cmd = [
         FFMPEG_PATH,
         "-y",
